@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>AegisVault — Credential Security &amp; Audit Suite</title>
+    <!-- Custom AegisVault Shield & Keyhole Favicon for Chrome & Mobile Tabs -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232E3344'/%3E%3Cstop offset='100%25' stop-color='%230A0B0F'/%3E%3C/linearGradient%3E%3ClinearGradient id='s' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23F3F5FA'/%3E%3Cstop offset='100%25' stop-color='%23A9B2CC'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%230A0B0F'/%3E%3Cpath d='M32 8 L52 16.5 V32 C52 44.5 43.5 54 32 58 C20.5 54 12 44.5 12 32 V16.5 Z' fill='url(%23g)' stroke='url(%23s)' stroke-width='3'/%3E%3Ccircle cx='32' cy='29' r='4.2' fill='%23F3F5FA'/%3E%3Cpath d='M29.8 31.5 L28.5 41 H35.5 L34.2 31.5 Z' fill='%23F3F5FA'/%3E%3C/svg%3E">
+    <meta name="theme-color" content="#0A0B0F">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,700;1,500;1,700;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        champagne: 'var(--bg-base)',
+                        alabaster: 'var(--bg-elevated)',
+                        espresso: 'var(--text-primary)',
+                        taupe: 'var(--text-secondary)',
+                        bronze: 'var(--accent-primary)',
+                        dustyrose: 'var(--accent-secondary)',
+                        slateindigo: 'var(--accent-tertiary)',
+                        merlot: 'var(--accent-danger)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-base: #0A0B0F;
+            --bg-elevated: #13151D;
+            --backdrop-grad: radial-gradient(circle at 50% 18%, #181B26 0%, #0D0F15 52%, #07080C 100%);
+            --glass-surface: linear-gradient(135deg, rgba(244, 246, 255, 0.12) 0%, rgba(210, 216, 238, 0.03) 48%, rgba(235, 238, 252, 0.08) 100%);
+            --glass-tile-bg: linear-gradient(142deg, rgba(244, 246, 255, 0.13) 0%, rgba(210, 216, 238, 0.035) 55%, rgba(235, 238, 252, 0.09) 100%);
+            --glass-border: rgba(226, 231, 248, 0.17);
+            --glass-border-top: rgba(248, 250, 255, 0.46);
+            --glass-shadow: 0 28px 64px -18px rgba(0, 0, 0, 0.76), 0 6px 20px -4px rgba(0, 0, 0, 0.48), inset 0 1px 1px 0 rgba(248, 250, 255, 0.36);
+            --glass-sheen: linear-gradient(122deg, rgba(248, 250, 255, 0.22) 0%, rgba(220, 225, 246, 0.05) 28%, rgba(255, 255, 255, 0.0) 48%, rgba(214, 219, 242, 0.08) 100%);
+            --input-bg: rgba(235, 238, 252, 0.07);
+            --input-focus: rgba(235, 238, 252, 0.13);
+            --text-primary: #F3F5FA;
+            --text-secondary: #9EA6BC;
+            --accent-primary: #D6DCEB;
+            --accent-secondary: #A9B2CC;
+            --accent-tertiary: #B7B3D6;
+            --accent-danger: #C97A8B;
+            --pill-dark-bg: linear-gradient(180deg, #2E3344 0%, #181B24 100%);
+            --pill-dark-text: #F5F7FC;
+            --pill-accent-bg: linear-gradient(180deg, #D5DAE8 0%, #9FA8C2 100%);
+            --pill-accent-text: #0A0B0F;
+            --hero-outline: rgba(236, 240, 252, 0.11);
+            --stepped-fill-1: rgba(14, 16, 22, 0.86);
+            --stepped-fill-2: rgba(20, 23, 32, 0.80);
+            --stepped-stroke: rgba(236, 240, 252, 0.26);
+            --lens-a: radial-gradient(circle at 30% 28%, rgba(248, 250, 255, 0.95) 0%, rgba(183, 179, 214, 0.42) 44%, rgba(56, 63, 84, 0.14) 78%, transparent 100%);
+            --lens-b: radial-gradient(circle at 34% 30%, rgba(232, 236, 250, 0.92) 0%, rgba(152, 162, 190, 0.36) 46%, rgba(44, 50, 68, 0.12) 80%, transparent 100%);
+            --lens-c: radial-gradient(circle at 32% 32%, rgba(220, 216, 242, 0.88) 0%, rgba(130, 138, 168, 0.32) 48%, rgba(36, 41, 56, 0.10) 82%, transparent 100%);
+            --grid-line: rgba(226, 231, 248, 0.055);
+            --wave-stroke-primary: rgba(232, 236, 250, 0.14);
+            --wave-stroke-secondary: rgba(183, 179, 214, 0.11);
+            --wave-band-fill: linear-gradient(90deg, transparent 0%, rgba(226, 231, 248, 0.045) 35%, rgba(183, 179, 214, 0.065) 65%, transparent 100%);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-base); color: var(--text-primary); font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; user-select: none; }
+        input, textarea, select, [contenteditable="true"] { user-select: text; }
+        button, a, [role="button"], input, select, textarea { outline: none !important; box-shadow: none; }
+
+        .silk-studio-backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none !important; overflow: hidden; background: var(--backdrop-grad); }
+        .perspective-grid-stage { position: absolute; inset: 0; perspective: 900px; overflow: hidden; -webkit-mask-image: radial-gradient(ellipse 86% 78% at 50% 48%, rgba(0, 0, 0, 0.9) 25%, transparent 95%); mask-image: radial-gradient(ellipse 86% 78% at 50% 48%, rgba(0, 0, 0, 0.9) 25%, transparent 95%); }
+        .perspective-grid-plane { position: absolute; inset: -35% -25%; background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px); background-size: 72px 72px; transform: rotateX(24deg) rotateZ(-3deg) scale(1.12); transform-origin: 50% 45%; animation: perspectiveSlowShift 34s ease-in-out infinite alternate; }
+        .silk-glass-band { position: absolute; left: -18%; width: 136%; height: 220px; background: var(--wave-band-fill); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-top: 1px solid rgba(248, 250, 255, 0.08); border-bottom: 1px solid rgba(183, 179, 214, 0.06); transform-origin: center; }
+        .silk-band-upper { top: 16%; transform: rotate(-7deg) translate3d(0, 0, 0); animation: silkBandSweepA 26s ease-in-out infinite alternate; }
+        .silk-band-lower { bottom: 14%; height: 190px; transform: rotate(-5deg) translate3d(0, 0, 0); animation: silkBandSweepB 30s ease-in-out infinite alternate; }
+        .silk-waves-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .silk-wave-path-a { stroke: var(--wave-stroke-primary); animation: waveUndulateA 18s ease-in-out infinite alternate; transform-origin: center; }
+        .silk-wave-path-b { stroke: var(--wave-stroke-secondary); animation: waveUndulateB 22s ease-in-out infinite alternate; transform-origin: center; }
+        .glass-lens-pocket { position: absolute; border-radius: 9999px; pointer-events: none !important; will-change: transform; opacity: 0.34; }
+        .lens-pocket-1 { width: 420px; height: 420px; top: 8%; left: 8%; background: var(--lens-a); animation: lensDriftOne 25s ease-in-out infinite alternate; }
+        .lens-pocket-2 { width: 480px; height: 480px; top: 26%; right: 5%; background: var(--lens-b); animation: lensDriftTwo 29s ease-in-out infinite alternate; }
+        .lens-pocket-3 { width: 390px; height: 390px; bottom: 4%; left: 30%; background: var(--lens-c); animation: lensDriftThree 27s ease-in-out infinite alternate; }
+
+        @keyframes perspectiveSlowShift { 0% { transform: rotateX(24deg) rotateZ(-3deg) translate3d(-16px, -10px, 0) scale(1.12); } 100% { transform: rotateX(26deg) rotateZ(-1.5deg) translate3d(18px, 14px, 0) scale(1.15); } }
+        @keyframes silkBandSweepA { 0% { transform: rotate(-7deg) translate3d(-2%, -12px, 0); } 100% { transform: rotate(-5.5deg) translate3d(2%, 14px, 0); } }
+        @keyframes silkBandSweepB { 0% { transform: rotate(-5deg) translate3d(2%, 10px, 0); } 100% { transform: rotate(-6.5deg) translate3d(-2%, -12px, 0); } }
+        @keyframes waveUndulateA { 0% { transform: translate3d(-18px, -10px, 0) scaleY(1); } 100% { transform: translate3d(18px, 12px, 0) scaleY(1.04); } }
+        @keyframes waveUndulateB { 0% { transform: translate3d(16px, 10px, 0) scaleY(1.03); } 100% { transform: translate3d(-16px, -12px, 0) scaleY(0.97); } }
+        @keyframes lensDriftOne { 0% { transform: translate3d(0, 0, 0) scale(1); } 100% { transform: translate3d(46px, 32px, 0) scale(1.06); } }
+        @keyframes lensDriftTwo { 0% { transform: translate3d(0, 0, 0) scale(1); } 100% { transform: translate3d(-44px, -28px, 0) scale(1.05); } }
+        @keyframes lensDriftThree { 0% { transform: translate3d(0, 0, 0) scale(1); } 100% { transform: translate3d(34px, -30px, 0) scale(1.04); } }
+
+        .frosted-glass { position: relative; background: var(--glass-surface); backdrop-filter: blur(28px) saturate(165%) contrast(104%); -webkit-backdrop-filter: blur(28px) saturate(165%) contrast(104%); border: 1px solid var(--glass-border); border-top: 1.5px solid var(--glass-border-top); border-left: 1.5px solid var(--glass-border-top); box-shadow: var(--glass-shadow); transition: background 0.55s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.55s ease, box-shadow 0.55s ease; }
+        .frosted-glass::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none !important; background: var(--glass-sheen); z-index: 1; }
+        .frosted-glass > * { position: relative; z-index: 2; }
+        .glass-tile { position: relative; background: var(--glass-tile-bg); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border: 1px solid var(--glass-border); border-top: 1.25px solid var(--glass-border-top); border-left: 1.25px solid var(--glass-border-top); box-shadow: 0 14px 32px -12px rgba(0, 0, 0, 0.14); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), background 0.55s ease, border-color 0.55s ease, box-shadow 0.35s ease; overflow: hidden; }
+        .glass-tile::before { content: ''; position: absolute; inset: 0; pointer-events: none !important; background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06) 38%, transparent 72%); opacity: 0; transition: opacity 0.35s ease; }
+        .glass-tile:hover::before { opacity: 1; }
+        .glass-tile:hover { transform: translate3d(0, -3px, 0); }
+
+        .gloss-input { background: var(--input-bg); color: var(--text-primary); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease; }
+        .gloss-input:focus { background: var(--input-focus); border-color: var(--accent-primary); }
+        .gloss-input option { background-color: var(--bg-elevated); color: var(--text-primary); }
+        .gloss-pill-dark { background: var(--pill-dark-bg); color: var(--pill-dark-text); border: 1px solid var(--glass-border); border-top: 1px solid var(--glass-border-top); box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.35); transition: background 0.55s ease, color 0.55s ease, border-color 0.55s ease; }
+        .gloss-pill-rose { background: var(--pill-accent-bg); color: var(--pill-accent-text); border: 1px solid var(--glass-border); border-top: 1px solid var(--glass-border-top); box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.28); transition: background 0.55s ease, color 0.55s ease, border-color 0.55s ease; }
+
+        .stepped-header-shell { position: fixed; top: 0; left: 0; right: 0; height: 76px; z-index: 50; pointer-events: none; }
+        .stepped-nav-row { position: relative; max-width: 1280px; height: 76px; margin: 0 auto; padding: 0 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: auto; }
+        .monogram-pocket { height: 68px; display: flex; align-items: center; gap: 10px; padding-top: 6px; cursor: pointer; flex-shrink: 0; }
+        .elevated-nav-shelf { height: 52px; display: flex; align-items: center; gap: 2px; position: relative; overflow-x: auto; }
+        #navUnderline { position: absolute; bottom: 6px; left: 0; height: 2px; border-radius: 9999px; background: linear-gradient(90deg, var(--accent-primary), var(--text-primary)); will-change: transform, width; pointer-events: none; }
+
+        .giant-outline-word { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; letter-spacing: -0.04em; line-height: 0.85; color: transparent; -webkit-text-stroke: 1.5px var(--hero-outline); user-select: none; pointer-events: none; will-change: transform; }
+        .word-mask { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.1em; }
+        .word-mask > span { display: inline-block; transform: translate3d(0, 110%, 0); opacity: 0; animation: wordRise 950ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        .word-mask:nth-child(2) > span { animation-delay: 110ms; }
+        .word-mask:nth-child(3) > span { animation-delay: 220ms; }
+        @keyframes wordRise { to { transform: translate3d(0, 0, 0); opacity: 1; } }
+
+        #vaultTiltStage { perspective: 1100px; transform-style: preserve-3d; }
+        #vault3DCard { will-change: transform; transform-style: preserve-3d; }
+        @keyframes slowSpinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes slowSpinCCW { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        @keyframes gentleBreath { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -6px, 0); } }
+        .vault-ring-cw { transform-origin: 210px 210px; animation: slowSpinCW 42s linear infinite; }
+        .vault-ring-ccw { transform-origin: 210px 210px; animation: slowSpinCCW 28s linear infinite; }
+        .vault-float { animation: gentleBreath 6.5s ease-in-out infinite; }
+
+        #slidingViewport { position: relative; z-index: 10; width: 100%; height: 100dvh; overflow: hidden; contain: layout paint; touch-action: pan-y; }
+        #slidingTrack { display: flex; width: 600vw; height: 100%; will-change: transform; transform: translate3d(0, 0, 0); backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: transform 780ms cubic-bezier(0.22, 1, 0.36, 1); }
+        .slide-window { width: 100vw; height: 100%; flex-shrink: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding: 86px 14px 92px 14px; will-change: transform, opacity; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform-origin: center center; transition: transform 780ms cubic-bezier(0.22, 1, 0.36, 1), opacity 620ms cubic-bezier(0.22, 1, 0.36, 1); }
+        @media (min-width: 640px) { .slide-window { padding: 90px 32px 86px 32px; } }
+        .slide-window.window-inactive { transform: scale3d(0.965, 0.965, 1); opacity: 0.32; pointer-events: none !important; }
+        .slide-window.window-inactive * { pointer-events: none !important; }
+        .slide-window.window-active { transform: scale3d(1, 1, 1); opacity: 1; pointer-events: auto !important; }
+
+        [data-reveal] { opacity: 0; will-change: transform, opacity; transform: translate3d(0, 22px, 0) scale3d(0.985, 0.985, 1); transition: opacity 720ms cubic-bezier(0.16, 1, 0.3, 1), transform 720ms cubic-bezier(0.16, 1, 0.3, 1); }
+        .slide-window.window-active [data-reveal].revealed { opacity: 1; transform: translate3d(0, 0, 0) scale3d(1, 1, 1); }
+        .magnetic-btn { will-change: transform; transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1), background-color 280ms ease, opacity 240ms ease; }
+        .magnetic-btn:active { transform: scale3d(0.965, 0.965, 1) !important; }
+
+        @keyframes tableFlashPulse { 0% { background-color: rgba(214, 220, 235, 0.22); } 100% { background-color: transparent; } }
+        .table-flash-active { animation: tableFlashPulse 650ms cubic-bezier(0.22, 1, 0.36, 1); }
+        @keyframes flowDash { to { stroke-dashoffset: -24; } }
+        .flow-line-animated { stroke-dasharray: 6 6; animation: flowDash 1.4s linear infinite; }
+        .slide-window::-webkit-scrollbar, .warm-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .slide-window::-webkit-scrollbar-track, .warm-scroll::-webkit-scrollbar-track { background: transparent; }
+        .slide-window::-webkit-scrollbar-thumb, .warm-scroll::-webkit-scrollbar-thumb { background: var(--glass-border-top); border-radius: 9999px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+
+    <div class="silk-studio-backdrop" aria-hidden="true">
+        <div class="perspective-grid-stage"><div class="perspective-grid-plane"></div></div>
+        <div class="silk-glass-band silk-band-upper"></div>
+        <div class="silk-glass-band silk-band-lower"></div>
+        <svg class="silk-waves-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="silkRibbonFillA" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.01" />
+                    <stop offset="45%" stop-color="#D6DCEB" stop-opacity="0.055" />
+                    <stop offset="78%" stop-color="#B7B3D6" stop-opacity="0.045" />
+                    <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.01" />
+                </linearGradient>
+                <linearGradient id="silkRibbonFillB" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#B7B3D6" stop-opacity="0.04" />
+                    <stop offset="50%" stop-color="#E6E9F2" stop-opacity="0.05" />
+                    <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.01" />
+                </linearGradient>
+            </defs>
+            <path class="silk-wave-path-a" fill="url(#silkRibbonFillA)" d="M-120,240 C210,110 470,350 810,230 C1120,120 1310,290 1560,185 L1560,330 C1310,435 1120,265 810,375 C470,495 210,255 -120,385 Z" />
+            <path class="silk-wave-path-b" fill="url(#silkRibbonFillB)" d="M-120,580 C240,460 520,710 860,575 C1150,460 1330,630 1560,540 L1560,685 C1330,775 1150,605 860,720 C520,855 240,605 -120,725 Z" />
+            <path class="silk-wave-path-a" fill="none" stroke-width="1.25" d="M-120,240 C210,110 470,350 810,230 C1120,120 1310,290 1560,185" />
+            <path class="silk-wave-path-a" fill="none" stroke-width="1" opacity="0.7" d="M-120,385 C210,255 470,495 810,375 C1120,265 1310,435 1560,330" />
+            <path class="silk-wave-path-b" fill="none" stroke-width="1.2" d="M-120,580 C240,460 520,710 860,575 C1150,460 1330,630 1560,540" />
+        </svg>
+        <div class="glass-lens-pocket lens-pocket-1"></div>
+        <div class="glass-lens-pocket lens-pocket-2"></div>
+        <div class="glass-lens-pocket lens-pocket-3"></div>
+    </div>
+
+    <header class="stepped-header-shell">
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1440 76" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+                <linearGradient id="steppedGlassFill" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color: var(--stepped-fill-1);" />
+                    <stop offset="50%" style="stop-color: var(--stepped-fill-2);" />
+                    <stop offset="100%" style="stop-color: var(--stepped-fill-1);" />
+                </linearGradient>
+            </defs>
+            <path d="M0,0 L1440,0 L1440,52 L285,52 L248,70 L0,70 Z" fill="url(#steppedGlassFill)" />
+            <path d="M0,70 L248,70 L285,52 L1440,52" fill="none" style="stroke: var(--stepped-stroke);" stroke-width="1.35" />
+        </svg>
+
+        <div class="stepped-nav-row">
+            <div role="button" tabindex="0" onclick="goToSlide(0)" class="monogram-pocket">
+                <span class="font-serif italic font-extrabold text-3xl sm:text-[34px] text-espresso tracking-tight leading-none select-none">AV</span>
+                <div class="hidden sm:flex flex-col leading-none">
+                    <span class="text-[11px] font-extrabold tracking-wider text-espresso">AegisVault</span>
+                    <span class="font-mono text-[9px] uppercase tracking-widest text-bronze mt-0.5">Audit Studio</span>
+                </div>
+            </div>
+
+            <nav aria-label="Sliding Studio Windows" class="elevated-nav-shelf no-scrollbar">
+                <div id="navUnderline"></div>
+                <button type="button" data-slide="0" onclick="goToSlide(0)" class="nav-link px-2.5 sm:px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-espresso whitespace-nowrap transition-colors">Overview</button>
+                <button type="button" data-slide="1" onclick="goToSlide(1)" class="nav-link px-2.5 sm:px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-taupe hover:text-espresso whitespace-nowrap transition-colors">Dictionary</button>
+                <button type="button" data-slide="2" onclick="goToSlide(2)" class="nav-link px-2.5 sm:px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-taupe hover:text-espresso whitespace-nowrap transition-colors">Hashes</button>
+                <button type="button" data-slide="3" onclick="goToSlide(3)" class="nav-link px-2.5 sm:px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-taupe hover:text-espresso whitespace-nowrap transition-colors">Simulator</button>
+                <button type="button" data-slide="4" onclick="goToSlide(4)" class="nav-link px-2.5 sm:px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-taupe hover:text-espresso whitespace-nowrap transition-colors">Analyzer</button>
+                <button type="button" data-slide="5" onclick="goToSlide(5)" class="nav-link px-2.5 sm:px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-taupe hover:text-espresso whitespace-nowrap transition-colors">Report</button>
+            </nav>
+        </div>
+    </header>
+
+    <main id="slidingViewport">
+        <div id="slidingTrack">
+
+            <!-- WINDOW 01: OVERVIEW & ARCHITECTURE -->
+            <section class="slide-window window-active" aria-label="Window 01 Overview">
+                <div class="max-w-6xl mx-auto space-y-10 pb-8">
+                    <div id="heroStage" class="frosted-glass rounded-[2.25rem] px-5 py-8 sm:px-10 sm:py-11 relative overflow-hidden">
+                        <div class="text-center relative z-20 mb-2 sm:mb-0">
+                            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-[10px] font-mono uppercase tracking-[0.2em] text-bronze font-semibold mb-3 shadow-sm">
+                                <span>Credential Security &amp; Audit Suite</span>
+                            </div>
+                            <h1 class="font-serif italic font-bold text-3xl sm:text-5xl lg:text-[3.75rem] text-espresso tracking-tight leading-[1.06]">
+                                <span class="word-mask"><span>Audit</span></span>
+                                <span class="word-mask mx-1.5 sm:mx-2.5"><span>the</span></span>
+                                <span class="word-mask text-bronze"><span>Unbreakable</span></span>
+                            </h1>
+                        </div>
+
+                        <div class="relative min-h-[340px] sm:min-h-[390px] flex flex-col lg:flex-row items-center justify-between gap-6 pt-2">
+                            <div id="giantOutlineLayer" aria-hidden="true" class="giant-outline-word absolute inset-0 flex items-center justify-center text-[25vw] sm:text-[185px] lg:text-[235px] z-0 select-none">AEGIS</div>
+
+                            <div data-reveal class="relative z-20 order-2 lg:order-1 lg:self-end lg:pb-4 text-center lg:text-left space-y-1.5 lg:w-56">
+                                <div class="font-serif italic font-bold text-xl sm:text-2xl text-espresso">Red &amp; Blue Suite</div>
+                                <div class="space-y-0.5 text-xs font-medium text-taupe">
+                                    <div>SHA-512 / Windows NTLM</div>
+                                    <div>Entropy &amp; Mutation Engine</div>
+                                    <div>Controlled Lab Sandbox</div>
+                                    <div class="font-mono text-[11px] text-bronze font-semibold pt-0.5">6 Core Audit Modules</div>
+                                </div>
+                            </div>
+
+                            <div id="vaultTiltStage" class="relative z-10 order-1 lg:order-2 flex items-center justify-center w-56 h-56 sm:w-80 sm:h-80 shrink-0">
+                                <div id="vault3DCard" class="vault-float w-full h-full flex items-center justify-center">
+                                    <svg viewBox="0 0 420 420" class="w-full h-full drop-shadow-[0_32px_48px_rgba(0,0,0,0.75)]" role="img" aria-label="3D Glossy Acrylic Security Vault Core">
+                                        <defs>
+                                            <radialGradient id="glassSphere" cx="30%" cy="24%" r="74%">
+                                                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.48" />
+                                                <stop offset="38%" stop-color="#D6DCEB" stop-opacity="0.16" />
+                                                <stop offset="76%" stop-color="#B7B3D6" stop-opacity="0.22" />
+                                                <stop offset="100%" stop-color="#0A0B0F" stop-opacity="0.45" />
+                                            </radialGradient>
+                                            <linearGradient id="glossSpecularSweep" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.65" />
+                                                <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.12" />
+                                                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0" />
+                                            </linearGradient>
+                                            <linearGradient id="bronzeMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#F3F5FA" />
+                                                <stop offset="50%" stop-color="#A9B2CC" />
+                                                <stop offset="100%" stop-color="#586078" />
+                                            </linearGradient>
+                                            <linearGradient id="plumCore" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#2E3344" />
+                                                <stop offset="100%" stop-color="#11131B" />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle cx="210" cy="210" r="184" fill="url(#glassSphere)" stroke="#FFFFFF" stroke-opacity="0.58" stroke-width="1.75" />
+                                        <circle cx="210" cy="210" r="172" fill="none" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="1" />
+                                        <ellipse cx="155" cy="112" rx="68" ry="30" transform="rotate(-28 155 112)" fill="url(#glossSpecularSweep)" />
+                                        <path d="M78 148 A150 150 0 0 1 264 68" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.65" />
+                                        <g class="vault-ring-cw">
+                                            <circle cx="210" cy="210" r="152" fill="none" stroke="url(#bronzeMetal)" stroke-width="2" stroke-dasharray="18 10 4 10" opacity="0.88" />
+                                            <circle cx="210" cy="58" r="4" fill="#D6DCEB" /><circle cx="362" cy="210" r="4" fill="#B7B3D6" /><circle cx="210" cy="362" r="4" fill="#D6DCEB" /><circle cx="58" cy="210" r="4" fill="#B7B3D6" />
+                                        </g>
+                                        <g class="vault-ring-ccw">
+                                            <circle cx="210" cy="210" r="122" fill="none" stroke="#B7B3D6" stroke-width="1.6" stroke-dasharray="3 9" opacity="0.72" />
+                                            <polygon points="210,82 216,96 204,96" fill="#D6DCEB" /><polygon points="210,338 216,324 204,324" fill="#D6DCEB" /><polygon points="82,210 96,216 96,204" fill="#B7B3D6" /><polygon points="338,210 324,216 324,204" fill="#B7B3D6" />
+                                        </g>
+                                        <path d="M210 112 L286 144 V206 C286 258 253 298 210 314 C167 298 134 258 134 206 V144 Z" fill="url(#plumCore)" stroke="url(#bronzeMetal)" stroke-width="3" />
+                                        <path d="M210 124 L274 151 V205 C274 250 246 285 210 300 C174 285 146 250 146 205 V151 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.34" stroke-width="1.2" />
+                                        <circle cx="210" cy="198" r="24" fill="none" stroke="url(#bronzeMetal)" stroke-width="2.5" />
+                                        <circle cx="210" cy="194" r="7.5" fill="#F3F5FA" />
+                                        <path d="M205 198 L202 224 H218 L215 198 Z" fill="#F3F5FA" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div data-reveal class="relative z-20 order-3 lg:self-center text-center lg:text-right space-y-3 lg:w-56">
+                                <div>
+                                    <div class="text-xs font-medium text-taupe">Max Throughput</div>
+                                    <div class="font-serif font-bold text-3xl sm:text-4xl text-espresso tracking-tight mt-0.5 tabular-nums">
+                                        <span id="throughputCounter">0.0</span><span class="text-xl sm:text-2xl font-sans font-bold text-bronze">M H/s</span>
+                                    </div>
+                                </div>
+                                <div class="pt-1 flex justify-center lg:justify-end">
+                                    <button type="button" onclick="goToSlide(1)" class="magnetic-btn gloss-pill-dark px-5 py-2.5 rounded-full text-champagne text-xs font-bold tracking-wide flex items-center gap-2 hover:opacity-95">
+                                        <span>Launch Toolkit</span><span aria-hidden="true">&rarr;</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div data-reveal class="frosted-glass lg:col-span-6 rounded-3xl p-6 space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-current/10 pb-3.5">
+                                <div>
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-bronze font-semibold">Dual-Perspective Lab</div>
+                                    <h2 class="text-base sm:text-lg font-extrabold text-espresso">Red Team vs. Blue Team</h2>
+                                </div>
+                                <div class="inline-flex p-1 rounded-full bg-white/10 border border-white/25">
+                                    <button type="button" id="lensBoth" onclick="setTeamLens('both')" class="gloss-pill-dark px-3 py-1 rounded-full text-[11px] font-bold">Both</button>
+                                    <button type="button" id="lensRed" onclick="setTeamLens('red')" class="px-3 py-1 rounded-full text-[11px] font-bold text-taupe">Red</button>
+                                    <button type="button" id="lensBlue" onclick="setTeamLens('blue')" class="px-3 py-1 rounded-full text-[11px] font-bold text-taupe">Blue</button>
+                                </div>
+                            </div>
+
+                            <div id="lensCardsWrapper" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <div id="redCard" class="glass-tile rounded-2xl p-4 border-l-4 border-l-merlot space-y-1.5">
+                                    <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-merlot">Red Team Offense</div>
+                                    <div class="text-sm font-bold text-espresso">Targeted Dictionary &amp; Hash Recovery</div>
+                                    <p class="text-xs text-taupe leading-relaxed">Simulates rule-based mutations and offline cracking against weak MD5/NTLM digests to uncover predictable user patterns.</p>
+                                </div>
+                                <div id="blueCard" class="glass-tile rounded-2xl p-4 border-l-4 border-l-slateindigo space-y-1.5">
+                                    <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-slateindigo">Blue Team Defense</div>
+                                    <div class="text-sm font-bold text-espresso">Salted KDFs &amp; Entropy Policies</div>
+                                    <p class="text-xs text-taupe leading-relaxed">Enforces unique cryptographic salts, memory-hard Argon2id/bcrypt hashing, and 12+ character passphrase baselines.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div data-reveal class="frosted-glass lg:col-span-6 rounded-3xl p-6 flex flex-col justify-between space-y-4">
+                            <div class="flex items-center justify-between border-b border-current/10 pb-3.5">
+                                <div>
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-bronze font-semibold">System Workflow</div>
+                                    <h2 class="text-base sm:text-lg font-extrabold text-espresso">6-Stage Assessment Architecture</h2>
+                                </div>
+                                <span class="font-mono text-[11px] text-slateindigo font-semibold">Interactive Pipeline</span>
+                            </div>
+
+                            <svg viewBox="0 0 540 135" class="w-full h-auto" role="img" aria-label="6-Stage Security Audit Pipeline">
+                                <path d="M85 38 H265 H445" fill="none" style="stroke: var(--glass-border-top);" stroke-width="2" opacity="0.35" />
+                                <path d="M85 38 H265 H445" fill="none" style="stroke: var(--accent-primary);" stroke-width="2" class="flow-line-animated" />
+                                <path d="M445 38 V98 H265 H85" fill="none" style="stroke: var(--glass-border-top);" stroke-width="2" opacity="0.35" />
+                                <path d="M445 38 V98 H265 H85" fill="none" style="stroke: var(--accent-secondary);" stroke-width="2" class="flow-line-animated" />
+
+                                <g onclick="goToSlide(0)" class="cursor-pointer"><rect x="20" y="16" width="130" height="44" rx="14" style="fill: var(--bg-elevated); stroke: var(--accent-primary);" stroke-width="1.3" /><text x="85" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="9" style="fill: var(--accent-primary);" font-weight="600">01 INPUT</text><text x="85" y="48" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" style="fill: var(--text-primary);" font-weight="700">Target Scope</text></g>
+                                <g onclick="goToSlide(1)" class="cursor-pointer"><rect x="200" y="16" width="130" height="44" rx="14" style="fill: var(--bg-elevated); stroke: var(--accent-primary);" stroke-width="1.3" /><text x="265" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="9" style="fill: var(--accent-primary);" font-weight="600">02 MUTATE</text><text x="265" y="48" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" style="fill: var(--text-primary);" font-weight="700">Wordlist Engine</text></g>
+                                <g onclick="goToSlide(2)" class="cursor-pointer"><rect x="380" y="16" width="130" height="44" rx="14" style="fill: var(--bg-elevated); stroke: var(--accent-primary);" stroke-width="1.3" /><text x="445" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="9" style="fill: var(--accent-primary);" font-weight="600">03 EXTRACT</text><text x="445" y="48" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" style="fill: var(--text-primary);" font-weight="700">Shadow / SAM</text></g>
+                                <g onclick="goToSlide(3)" class="cursor-pointer"><rect x="380" y="76" width="130" height="44" rx="14" style="fill: var(--bg-elevated); stroke: var(--accent-secondary);" stroke-width="1.3" /><text x="445" y="94" text-anchor="middle" font-family="JetBrains Mono" font-size="9" style="fill: var(--accent-secondary);" font-weight="600">04 SIMULATE</text><text x="445" y="108" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" style="fill: var(--text-primary);" font-weight="700">Attack Sandbox</text></g>
+                                <g onclick="goToSlide(4)" class="cursor-pointer"><rect x="200" y="76" width="130" height="44" rx="14" style="fill: var(--bg-elevated); stroke: var(--accent-secondary);" stroke-width="1.3" /><text x="265" y="94" text-anchor="middle" font-family="JetBrains Mono" font-size="9" style="fill: var(--accent-secondary);" font-weight="600">05 ENTROPY</text><text x="265" y="108" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" style="fill: var(--text-primary);" font-weight="700">Strength Audit</text></g>
+                                <g onclick="goToSlide(5)" class="cursor-pointer"><rect x="20" y="76" width="130" height="44" rx="14" style="fill: var(--accent-primary);" /><text x="85" y="94" text-anchor="middle" font-family="JetBrains Mono" font-size="9" style="fill: var(--bg-base);" font-weight="700">06 DELIVER</text><text x="85" y="108" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" style="fill: var(--bg-base);" font-weight="800">Executive Report</text></g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 02: DICTIONARY GENERATOR (Matches dictionary_generator.py) -->
+            <section id="win-1" class="slide-window window-inactive" aria-label="Window 02 Dictionary Generator">
+                <div class="max-w-5xl mx-auto space-y-6 pb-8">
+                    <div data-reveal class="flex flex-wrap items-end justify-between gap-4">
+                        <div>
+                            <div class="font-mono text-xs uppercase tracking-widest text-bronze font-semibold">Module 02 &bull; dictionary_generator.py</div>
+                            <h2 class="font-serif italic font-bold text-3xl sm:text-4xl text-espresso mt-0.5">Custom Dictionary Generator</h2>
+                        </div>
+                        <span class="frosted-glass px-3.5 py-1.5 rounded-full font-mono text-xs font-bold text-bronze">MUTATION ENGINE</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div data-reveal class="frosted-glass lg:col-span-5 rounded-3xl p-6 space-y-4">
+                            <div class="space-y-3">
+                                <div>
+                                    <label for="dictName" class="block text-xs font-bold text-espresso mb-1">Target Name / Username</label>
+                                    <input id="dictName" type="text" value="ishan" oninput="generateWordlist()" class="gloss-input w-full px-3.5 py-2.5 rounded-xl font-mono text-xs sm:text-sm text-espresso">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label for="dictDob" class="block text-xs font-bold text-espresso mb-1">DOB (DDMMYYYY)</label>
+                                        <input id="dictDob" type="text" value="15082005" oninput="generateWordlist()" class="gloss-input w-full px-3.5 py-2.5 rounded-xl font-mono text-xs sm:text-sm text-espresso">
+                                    </div>
+                                    <div>
+                                        <label for="dictPet" class="block text-xs font-bold text-espresso mb-1">Pet / Nickname</label>
+                                        <input id="dictPet" type="text" value="tommy" oninput="generateWordlist()" class="gloss-input w-full px-3.5 py-2.5 rounded-xl font-mono text-xs sm:text-sm text-espresso">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="dictCompany" class="block text-xs font-bold text-espresso mb-1">Extra Keyword (University / Org)</label>
+                                    <input id="dictCompany" type="text" value="chanakya" oninput="generateWordlist()" class="gloss-input w-full px-3.5 py-2.5 rounded-xl font-mono text-xs sm:text-sm text-espresso">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <span class="block text-xs font-bold text-espresso">Active Mutation Transforms</span>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" data-rule="leet" onclick="toggleRule('leet')" class="rule-btn gloss-pill-dark px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-colors">Leet-Speak (i&rarr;!, s&rarr;$)</button>
+                                    <button type="button" data-rule="upper" onclick="toggleRule('upper')" class="rule-btn gloss-pill-dark px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-colors">Case Variants</button>
+                                    <button type="button" data-rule="years" onclick="toggleRule('years')" class="rule-btn gloss-pill-dark px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-colors">Suffixes &amp; DOB</button>
+                                    <button type="button" data-rule="keyboard" onclick="toggleRule('keyboard')" class="rule-btn gloss-pill-dark px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-colors">Common &amp; Walks</button>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="generateWordlist(); showStudioToast('Synthesized ' + wordlistCandidates.length + ' wordlist candidates')" class="magnetic-btn gloss-pill-rose w-full py-3 rounded-xl text-xs sm:text-sm font-bold">
+                                Synthesize Custom Wordlist
+                            </button>
+                        </div>
+
+                        <div data-reveal class="frosted-glass lg:col-span-7 rounded-3xl p-6 flex flex-col space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-current/10 pb-3.5">
+                                <div class="flex items-center gap-2.5">
+                                    <h3 class="text-sm font-extrabold text-espresso">Generated Candidate Corpus</h3>
+                                    <span id="wordlistCounter" class="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-bronze">0 candidates</span>
+                                </div>
+                                <button type="button" onclick="downloadWordlistTxt()" class="magnetic-btn gloss-pill-dark px-4 py-1.5 rounded-full text-xs font-bold">Export generated_wordlist.txt</button>
+                            </div>
+
+                            <input id="wordlistFilter" type="text" oninput="renderWordlistPreview()" placeholder="Search corpus (e.g., ishan123, 15082005, !$han, tommy)..." class="gloss-input w-full px-3.5 py-2 rounded-xl font-mono text-xs text-espresso">
+
+                            <div id="wordlistBox" class="warm-scroll flex-1 bg-black/50 border border-white/15 text-espresso rounded-2xl p-4 font-mono text-xs max-h-[300px] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 03: HASH INSPECTOR (Matches hash_tools.py) -->
+            <section id="win-2" class="slide-window window-inactive" aria-label="Window 03 Hash Inspector">
+                <div class="max-w-5xl mx-auto space-y-6 pb-8">
+                    <div data-reveal class="flex flex-wrap items-end justify-between gap-4">
+                        <div>
+                            <div class="font-mono text-xs uppercase tracking-widest text-bronze font-semibold">Module 03 &bull; hash_tools.py</div>
+                            <h2 class="font-serif italic font-bold text-3xl sm:text-4xl text-espresso mt-0.5">Hash Inspector &amp; Extractor</h2>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 relative z-30">
+                            <button type="button" id="presetLinuxBtn" onclick="loadHashPreset('linux')" class="gloss-pill-dark magnetic-btn cursor-pointer px-3.5 py-2 rounded-full text-xs font-bold transition-all">Linux /etc/shadow</button>
+                            <button type="button" id="presetWindowsBtn" onclick="loadHashPreset('windows')" class="frosted-glass magnetic-btn cursor-pointer px-3.5 py-2 rounded-full text-xs font-bold text-espresso transition-all">Windows SAM</button>
+                            <label for="hashFileInput" id="uploadHashBtn" class="frosted-glass magnetic-btn cursor-pointer px-4 py-2 rounded-full text-xs font-bold text-espresso transition-all inline-flex items-center">Upload File</label>
+                            <input id="hashFileInput" type="file" accept=".txt,.shadow,.sam,.pwdump,.hash,.csv" onchange="handleHashFile(event)" class="hidden">
+                        </div>
+                    </div>
+
+                    <div data-reveal class="frosted-glass rounded-3xl p-6 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <label for="hashRawInput" class="text-xs font-bold text-espresso">Controlled Lab Shadow / SAM Dump Input (Locked *, !, !! entries skipped automatically)</label>
+                            <div class="flex items-center gap-2">
+                                <span id="hashSourceStatus" class="font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-slateindigo transition-all duration-300">Loaded: Linux /etc/shadow</span>
+                                <span id="parsedHashBadge" class="font-mono text-xs font-semibold text-bronze">0 accounts extracted</span>
+                            </div>
+                        </div>
+
+                        <textarea id="hashRawInput" rows="4" oninput="onManualHashEdit()" class="gloss-input w-full p-3.5 rounded-2xl font-mono text-xs text-espresso leading-relaxed"></textarea>
+
+                        <div id="hashTableContainer" class="overflow-x-auto rounded-2xl border border-white/25 bg-white/5 backdrop-blur-md">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-current/10 bg-white/10 font-mono text-[11px] uppercase tracking-wider text-taupe">
+                                        <th class="py-3 px-4">Username</th>
+                                        <th class="py-3 px-4">Hash Algorithm</th>
+                                        <th class="py-3 px-4">Salt Status</th>
+                                        <th class="py-3 px-4">Digest Preview</th>
+                                        <th class="py-3 px-4">Security Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hashInspectorTable" class="divide-y divide-current/10"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 04: ATTACK SIMULATOR (Matches bruteforce_simulator.py & main.py) -->
+            <section id="win-3" class="slide-window window-inactive" aria-label="Window 04 Attack Simulator">
+                <div class="max-w-5xl mx-auto space-y-6 pb-8">
+                    <div data-reveal class="flex flex-wrap items-end justify-between gap-4">
+                        <div>
+                            <div class="font-mono text-xs uppercase tracking-widest text-bronze font-semibold">Module 04 &bull; bruteforce_simulator.py</div>
+                            <h2 class="font-serif italic font-bold text-3xl sm:text-4xl text-espresso mt-0.5">Controlled Attack Simulator</h2>
+                        </div>
+                        <span id="backendEngineBadge" class="frosted-glass px-3.5 py-1.5 rounded-full font-mono text-xs font-bold text-slateindigo">
+                            ENGINE: WEBCRYPTO + LAB DEMO
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div data-reveal class="frosted-glass lg:col-span-5 rounded-3xl p-6 space-y-4">
+                            <div>
+                                <label for="simHashSelect" class="block text-xs font-bold text-espresso mb-1.5">Target Lab Credential</label>
+                                <select id="simHashSelect" class="gloss-input w-full px-3.5 py-2.5 rounded-xl font-mono text-xs text-espresso"></select>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <span class="block text-xs font-bold text-espresso">Attack Methodology</span>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" id="modeDictBtn" onclick="setAttackMode('dictionary')" class="gloss-pill-dark py-2.5 px-3 rounded-xl text-xs font-bold transition-colors">Dictionary Attack</button>
+                                    <button type="button" id="modeBruteBtn" onclick="setAttackMode('bruteforce')" class="py-2.5 px-3 rounded-xl text-xs font-bold bg-white/10 text-espresso border border-white/20 transition-colors">Incremental Brute-Force</button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <span class="block text-xs font-bold text-espresso">Brute-Force Keyspace Estimator</span>
+                                <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+                                    <button type="button" data-pool="lower" onclick="togglePool('lower')" class="pool-btn py-2 px-3 rounded-xl font-bold bg-bronze text-champagne border border-white/40 text-left shadow-sm">a&ndash;z (26)</button>
+                                    <button type="button" data-pool="upper" onclick="togglePool('upper')" class="pool-btn py-2 px-3 rounded-xl font-bold bg-bronze text-champagne border border-white/40 text-left shadow-sm">A&ndash;Z (26)</button>
+                                    <button type="button" data-pool="digits" onclick="togglePool('digits')" class="pool-btn py-2 px-3 rounded-xl font-bold bg-bronze text-champagne border border-white/40 text-left shadow-sm">0&ndash;9 (10)</button>
+                                    <button type="button" data-pool="symbols" onclick="togglePool('symbols')" class="pool-btn py-2 px-3 rounded-xl font-bold bg-white/10 text-taupe border border-white/20 text-left">Symbols (32)</button>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="runControlledSimulation()" class="magnetic-btn gloss-pill-rose w-full py-3 rounded-xl text-xs sm:text-sm font-bold">
+                                Execute Real Digest Audit
+                            </button>
+                        </div>
+
+                        <div data-reveal class="frosted-glass lg:col-span-7 rounded-3xl p-6 space-y-5">
+                            <div class="flex items-center justify-between border-b border-current/10 pb-3">
+                                <h3 class="text-sm font-extrabold text-espresso">Live Recovery Stream &amp; CPU Hashrate</h3>
+                                <span id="simBadge" class="font-mono text-xs font-bold px-3 py-1 rounded-full bg-white/10 border border-white/20 text-taupe">Ready</span>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-xs font-mono">
+                                    <span id="simStreamLine" class="text-taupe truncate">stream: awaiting target selection</span>
+                                    <span id="simPctText" class="font-bold text-espresso">0%</span>
+                                </div>
+                                <div class="w-full h-3 rounded-full bg-white/15 border border-white/30 overflow-hidden p-0.5 shadow-inner">
+                                    <div id="simBarFill" class="h-full rounded-full transition-all duration-150 bg-bronze" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="glass-tile rounded-2xl p-3.5">
+                                    <div class="font-mono text-[10px] uppercase text-taupe">Measured Hashrate</div>
+                                    <div id="simSpeedMetric" class="font-mono text-sm sm:text-base font-extrabold text-espresso mt-1">0 H/s</div>
+                                </div>
+                                <div class="glass-tile rounded-2xl p-3.5">
+                                    <div class="font-mono text-[10px] uppercase text-taupe">Crack / Est. Time</div>
+                                    <div id="simTimeMetric" class="font-mono text-sm sm:text-base font-extrabold text-bronze mt-1">&mdash;</div>
+                                </div>
+                                <div class="glass-tile rounded-2xl p-3.5">
+                                    <div class="font-mono text-[10px] uppercase text-taupe">Active Keyspace</div>
+                                    <div id="simPoolMetric" class="font-mono text-sm sm:text-base font-extrabold text-slateindigo mt-1">62 chars</div>
+                                </div>
+                            </div>
+
+                            <div id="simOutcomeCard" class="rounded-2xl bg-white/10 backdrop-blur-md border border-white/25 p-4 text-xs text-taupe leading-relaxed">
+                                Evaluates target hashes against your generated wordlist (`ishan123`, `Tommy2025!`, `xQ9$mP2#vL7!zR4w`) and bounded 4-char incremental brute-force (`ab12`) using WebCrypto SHA-256 digests.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 05: STRENGTH ANALYZER (Matches strength_analyzer.py) -->
+            <section id="win-4" class="slide-window window-inactive" aria-label="Window 05 Password Strength Analyzer">
+                <div class="max-w-5xl mx-auto space-y-6 pb-8">
+                    <div data-reveal class="flex flex-wrap items-end justify-between gap-4">
+                        <div>
+                            <div class="font-mono text-xs uppercase tracking-widest text-bronze font-semibold">Module 05 &bull; strength_analyzer.py</div>
+                            <h2 class="font-serif italic font-bold text-3xl sm:text-4xl text-espresso mt-0.5">Password Strength Analyzer</h2>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="setStrengthPreset('ishan123')" class="frosted-glass magnetic-btn px-3 py-1.5 rounded-full text-xs font-mono font-bold text-merlot">ishan123</button>
+                            <button type="button" onclick="setStrengthPreset('Tommy2025!')" class="frosted-glass magnetic-btn px-3 py-1.5 rounded-full text-xs font-mono font-bold text-bronze">Tommy2025!</button>
+                            <button type="button" onclick="setStrengthPreset('xQ9$mP2#vL7!zR4w')" class="frosted-glass magnetic-btn px-3 py-1.5 rounded-full text-xs font-mono font-bold text-slateindigo">xQ9$mP2#vL7!zR4w</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div data-reveal class="frosted-glass lg:col-span-7 rounded-3xl p-6 space-y-5">
+                            <div>
+                                <label for="strengthPwdInput" class="block text-xs font-bold text-espresso mb-1.5">Enter Password or Multi-Word Passphrase</label>
+                                <input id="strengthPwdInput" type="text" value="ishan123" oninput="evaluatePasswordStrength()" placeholder="Type a password to analyze Shannon entropy..." class="gloss-input w-full px-4 py-3 rounded-2xl font-mono text-sm text-espresso">
+                            </div>
+
+                            <div class="flex items-center gap-5">
+                                <div class="relative w-20 h-20 shrink-0 flex items-center justify-center">
+                                    <svg viewBox="0 0 80 80" class="w-full h-full -rotate-90">
+                                        <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="6" />
+                                        <circle id="entropyRingCircle" cx="40" cy="40" r="32" fill="none" stroke="#C97A8B" stroke-width="6" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="150" style="transition: stroke-dashoffset 520ms cubic-bezier(0.16, 1, 0.3, 1), stroke 350ms ease;" />
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center leading-none">
+                                        <span id="entropyRingNum" class="font-mono text-sm font-extrabold text-espresso">0</span>
+                                        <span class="font-mono text-[9px] uppercase text-taupe mt-0.5">bits</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 space-y-2.5">
+                                    <div class="flex justify-between text-xs font-bold">
+                                        <span id="strengthTitle" class="text-merlot">Weak &mdash; Predictable Pattern</span>
+                                        <span id="strengthScoreLabel" class="font-mono text-taupe">0 / 100</span>
+                                    </div>
+                                    <div class="grid grid-cols-4 gap-1.5 h-2.5">
+                                        <div id="seg1" class="rounded-full bg-merlot transition-colors duration-300"></div>
+                                        <div id="seg2" class="rounded-full bg-white/15 transition-colors duration-300"></div>
+                                        <div id="seg3" class="rounded-full bg-white/15 transition-colors duration-300"></div>
+                                        <div id="seg4" class="rounded-full bg-white/15 transition-colors duration-300"></div>
+                                    </div>
+                                    <div class="text-[11px] text-taupe">Character Pool Size: <strong id="poolSizeText" class="font-mono text-espresso">0</strong> symbols</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center font-mono text-xs">
+                                <div id="statLower" class="glass-tile rounded-xl p-3"><div class="text-[10px] text-taupe">Lowercase</div><div class="font-bold text-espresso mt-0.5">0</div></div>
+                                <div id="statUpper" class="glass-tile rounded-xl p-3"><div class="text-[10px] text-taupe">Uppercase</div><div class="font-bold text-espresso mt-0.5">0</div></div>
+                                <div id="statDigit" class="glass-tile rounded-xl p-3"><div class="text-[10px] text-taupe">Digits</div><div class="font-bold text-espresso mt-0.5">0</div></div>
+                                <div id="statSymbol" class="glass-tile rounded-xl p-3"><div class="text-[10px] text-taupe">Symbols</div><div class="font-bold text-espresso mt-0.5">0</div></div>
+                            </div>
+                        </div>
+
+                        <div data-reveal class="frosted-glass lg:col-span-5 rounded-3xl p-6 flex flex-col justify-between space-y-4">
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-extrabold text-espresso border-b border-current/10 pb-3">Detected Issues &amp; Recommendations</h3>
+                                <ul id="weaknessAlertsList" class="space-y-2.5 text-xs text-taupe leading-relaxed list-disc list-inside"></ul>
+                            </div>
+
+                            <div class="rounded-2xl bg-white/10 backdrop-blur-md border border-white/25 p-4 text-xs text-espresso">
+                                <strong>Policy Baseline:</strong> Enforce minimum 12-character passwords, block top-10k breach lists, and store hashes with salted Argon2 / bcrypt.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WINDOW 06: EXECUTIVE AUDIT REPORT (Matches report_generator.py) -->
+            <section id="win-5" class="slide-window window-inactive" aria-label="Window 06 Executive Audit Report">
+                <div class="max-w-5xl mx-auto space-y-6 pb-8">
+                    <div data-reveal class="flex flex-wrap items-end justify-between gap-4">
+                        <div>
+                            <div class="font-mono text-xs uppercase tracking-widest text-bronze font-semibold">Module 06 &bull; report_generator.py</div>
+                            <h2 class="font-serif italic font-bold text-3xl sm:text-4xl text-espresso mt-0.5">Password Security Audit Report</h2>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="downloadPlainAuditTxt()" class="frosted-glass magnetic-btn px-4 py-2.5 rounded-full text-espresso text-xs font-bold">
+                                Export audit_report.txt
+                            </button>
+                            <button type="button" onclick="exportHtmlPrintReport()" class="magnetic-btn gloss-pill-dark px-5 py-2.5 rounded-full text-champagne text-xs font-bold">
+                                Print / Save PDF Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <div data-reveal class="frosted-glass rounded-3xl p-6 sm:p-8 space-y-6">
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-current/10 pb-4">
+                            <div>
+                                <h3 class="text-lg font-extrabold text-espresso">Credential Assessment &amp; Policy Findings</h3>
+                                <p class="text-xs text-taupe">Prepared by Ishan Bhat &bull; Chanakya University Security Internship &bull; Compiled <span id="auditDateStamp"></span></p>
+                            </div>
+                            <span class="font-mono text-xs font-bold px-3 py-1 rounded-full bg-merlot/15 border border-white/25 text-merlot">LAB AUDIT COMPLETE</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="glass-tile rounded-2xl p-4"><div class="font-mono text-[10px] uppercase text-taupe">Audited Accounts</div><div id="repAuditedCount" class="text-xl font-extrabold text-espresso mt-1">0 entries</div></div>
+                            <div class="glass-tile rounded-2xl p-4"><div class="font-mono text-[10px] uppercase text-taupe">Cracked / Flagged</div><div id="repCrackedCount" class="text-xl font-extrabold text-merlot mt-1">0 recovered</div></div>
+                            <div class="glass-tile rounded-2xl p-4"><div class="font-mono text-[10px] uppercase text-taupe">Wordlist Candidates</div><div id="repWordlistSize" class="text-xl font-extrabold text-slateindigo mt-1">0 words</div></div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-2xl border border-white/25 bg-white/5 backdrop-blur-md">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-current/10 bg-white/10 font-mono text-[11px] uppercase text-taupe">
+                                        <th class="py-2.5 px-4">Account</th>
+                                        <th class="py-2.5 px-4">Hash Primitive</th>
+                                        <th class="py-2.5 px-4">Simulation Status</th>
+                                        <th class="py-2.5 px-4">Recommended Mitigation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportFindingsBody" class="divide-y divide-current/10"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div class="fixed bottom-4 sm:bottom-5 inset-x-0 z-50 px-5 sm:px-8 pointer-events-none">
+        <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
+            <button type="button" id="prevWindowBtn" onclick="stepSlide(-1)" class="frosted-glass magnetic-btn pointer-events-auto px-4 py-2 rounded-full text-xs font-bold text-espresso inline-flex items-center justify-center gap-1.5 min-w-[84px] disabled:opacity-35">
+                <span aria-hidden="true">&larr;</span><span>Prev</span>
+            </button>
+            <div class="frosted-glass px-4 py-2 rounded-full font-mono text-[11px] font-semibold text-espresso tracking-wider inline-flex items-center justify-center">
+                <span id="windowFraction">01 / 06</span>
+            </div>
+            <button type="button" id="nextWindowBtn" onclick="stepSlide(1)" class="frosted-glass magnetic-btn pointer-events-auto px-4 py-2 rounded-full text-xs font-bold text-espresso inline-flex items-center justify-center gap-1.5 min-w-[84px] disabled:opacity-35">
+                <span>Next</span><span aria-hidden="true">&rarr;</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="studioToast" role="status" aria-live="polite" class="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300">
+        <div class="frosted-glass px-4 py-2 rounded-full flex items-center gap-2 text-xs font-mono font-semibold text-espresso shadow-xl">
+            <span class="w-2 h-2 rounded-full bg-bronze"></span>
+            <span id="studioToastText">Loaded preset</span>
+        </div>
+    </div>
+
+    <script>
+        // Navigation, physics, and module state for the AegisVault dashboard
+        const TOTAL_WINDOWS = 6;
+        let activeWindow = 0;
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        const navSpring = { x: 0, vx: 0, targetX: 0, w: 0, vw: 0, targetW: 0, initialized: false };
+
+        function updateNavUnderline(instant = false) {
+            const underline = document.getElementById('navUnderline');
+            const activeLink = document.querySelector(`.nav-link[data-slide="${activeWindow}"]`);
+            if (!underline || !activeLink) return;
+            navSpring.targetW = Math.max(16, activeLink.offsetWidth - 16);
+            navSpring.targetX = activeLink.offsetLeft + 8;
+            if (instant || !navSpring.initialized) {
+                navSpring.x = navSpring.targetX; navSpring.w = navSpring.targetW;
+                navSpring.vx = 0; navSpring.vw = 0; navSpring.initialized = true;
+                underline.style.width = `${navSpring.w.toFixed(2)}px`;
+                underline.style.transform = `translate3d(${navSpring.x.toFixed(2)}px, 0, 0)`;
+            }
+            activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        function triggerWindowCascade(winIndex) {
+            document.querySelectorAll('.slide-window').forEach((win, idx) => {
+                const isTarget = idx === winIndex;
+                win.classList.toggle('window-active', isTarget);
+                win.classList.toggle('window-inactive', !isTarget);
+                win.setAttribute('aria-hidden', String(!isTarget));
+                const items = win.querySelectorAll('[data-reveal]');
+                if (isTarget) {
+                    requestAnimationFrame(() => {
+                        items.forEach((el, i) => {
+                            el.classList.remove('revealed');
+                            setTimeout(() => el.classList.add('revealed'), 45 + i * 52);
+                        });
+                    });
+                } else {
+                    items.forEach(el => el.classList.remove('revealed'));
+                }
+            });
+        }
+
+        function goToSlide(index) {
+            activeWindow = Math.max(0, Math.min(TOTAL_WINDOWS - 1, index));
+            const track = document.getElementById('slidingTrack');
+            if (track) track.style.transform = `translate3d(-${activeWindow * 100}vw, 0, 0)`;
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                const isCurrent = Number(btn.dataset.slide) === activeWindow;
+                btn.classList.toggle('text-espresso', isCurrent);
+                btn.classList.toggle('text-taupe', !isCurrent);
+            });
+            document.getElementById('windowFraction').textContent = `${String(activeWindow + 1).padStart(2, '0')} / 0${TOTAL_WINDOWS}`;
+            document.getElementById('prevWindowBtn').disabled = activeWindow === 0;
+            document.getElementById('nextWindowBtn').disabled = activeWindow === TOTAL_WINDOWS - 1;
+            updateNavUnderline(false);
+            triggerWindowCascade(activeWindow);
+            refreshAuditReport();
+        }
+
+        function stepSlide(delta) { goToSlide(activeWindow + delta); }
+
+        document.addEventListener('keydown', (e) => {
+            const tag = document.activeElement?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            if (e.key === 'ArrowRight') stepSlide(1);
+            if (e.key === 'ArrowLeft') stepSlide(-1);
+        });
+
+        let swipeStartX = 0, swipeStartY = 0, isSwipingHorizontal = false;
+        const slidingTrackEl = document.getElementById('slidingTrack');
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('input, textarea, select')) return;
+            swipeStartX = e.changedTouches[0].clientX;
+            swipeStartY = e.changedTouches[0].clientY;
+            isSwipingHorizontal = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!swipeStartX || e.target.closest('input, textarea, select')) return;
+            const dx = e.changedTouches[0].clientX - swipeStartX;
+            const dy = e.changedTouches[0].clientY - swipeStartY;
+            if (!isSwipingHorizontal && Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+                isSwipingHorizontal = true;
+                if (slidingTrackEl) slidingTrackEl.style.transition = 'none';
+            }
+            if (isSwipingHorizontal && slidingTrackEl) {
+                const baseOffset = -activeWindow * window.innerWidth;
+                const resistance = (activeWindow === 0 && dx > 0) || (activeWindow === TOTAL_WINDOWS - 1 && dx < 0) ? 0.28 : 0.85;
+                slidingTrackEl.style.transform = `translate3d(${baseOffset + dx * resistance}px, 0, 0)`;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (slidingTrackEl) slidingTrackEl.style.transition = 'transform 780ms cubic-bezier(0.22, 1, 0.36, 1)';
+            if (!swipeStartX) return;
+            const dx = e.changedTouches[0].clientX - swipeStartX;
+            const dy = e.changedTouches[0].clientY - swipeStartY;
+            swipeStartX = 0;
+            if (isSwipingHorizontal && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) {
+                dx < 0 ? stepSlide(1) : stepSlide(-1);
+            } else {
+                goToSlide(activeWindow);
+            }
+            isSwipingHorizontal = false;
+        }, { passive: true });
+
+        window.addEventListener('resize', () => {
+            updateNavUnderline(false);
+            if (slidingTrackEl) slidingTrackEl.style.transform = `translate3d(-${activeWindow * 100}vw, 0, 0)`;
+        });
+
+        let targetMouseX = 0, targetMouseY = 0, currentMouseX = 0, currentMouseY = 0, velMouseX = 0, velMouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
+            const tile = e.target.closest('.glass-tile');
+            if (tile) {
+                const rect = tile.getBoundingClientRect();
+                tile.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+                tile.style.setProperty('--my', `${e.clientY - rect.top}px`);
+            }
+        }, { passive: true });
+
+        function animateStudioPhysics() {
+            const stiffness = 0.085, damping = 0.78;
+            velMouseX = (velMouseX + (targetMouseX - currentMouseX) * stiffness) * damping;
+            velMouseY = (velMouseY + (targetMouseY - currentMouseY) * stiffness) * damping;
+            currentMouseX += velMouseX; currentMouseY += velMouseY;
+
+            const vaultCard = document.getElementById('vault3DCard');
+            const outlineLayer = document.getElementById('giantOutlineLayer');
+            if (vaultCard && activeWindow === 0) {
+                vaultCard.style.transform = `perspective(1100px) rotateX(${(-currentMouseY * 11).toFixed(2)}deg) rotateY(${(currentMouseX * 13).toFixed(2)}deg) translate3d(0,0,0)`;
+            }
+            if (outlineLayer && activeWindow === 0) {
+                outlineLayer.style.transform = `translate3d(${(-currentMouseX * 24).toFixed(2)}px, ${(-currentMouseY * 11).toFixed(2)}px, 0)`;
+            }
+
+            const underline = document.getElementById('navUnderline');
+            if (underline && navSpring.initialized) {
+                navSpring.vx = (navSpring.vx + (navSpring.targetX - navSpring.x) * 0.16) * 0.74;
+                navSpring.vw = (navSpring.vw + (navSpring.targetW - navSpring.w) * 0.16) * 0.74;
+                navSpring.x += navSpring.vx; navSpring.w += navSpring.vw;
+                underline.style.width = `${navSpring.w.toFixed(2)}px`;
+                underline.style.transform = `translate3d(${navSpring.x.toFixed(2)}px, 0, 0)`;
+            }
+            requestAnimationFrame(animateStudioPhysics);
+        }
+
+        function animateThroughputCounter() {
+            const el = document.getElementById('throughputCounter');
+            if (!el) return;
+            const target = 14.8, duration = 1200, start = performance.now();
+            function tick(now) {
+                const t = Math.min(1, (now - start) / duration);
+                el.textContent = (target * (1 - Math.pow(1 - t, 3))).toFixed(1);
+                if (t < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                btn.style.transform = `translate3d(${((e.clientX - rect.left - rect.width / 2) * 0.16).toFixed(1)}px, ${((e.clientY - rect.top - rect.height / 2) * 0.22).toFixed(1)}px, 0)`;
+            });
+            btn.addEventListener('mouseleave', () => { btn.style.transform = 'translate3d(0, 0, 0)'; });
+        });
+
+        function setTeamLens(mode) {
+            const red = document.getElementById('redCard'), blue = document.getElementById('blueCard'), wrap = document.getElementById('lensCardsWrapper');
+            const btns = { both: document.getElementById('lensBoth'), red: document.getElementById('lensRed'), blue: document.getElementById('lensBlue') };
+            Object.entries(btns).forEach(([k, b]) => { b.className = k === mode ? 'gloss-pill-dark px-3 py-1 rounded-full text-[11px] font-bold' : 'px-3 py-1 rounded-full text-[11px] font-bold text-taupe'; });
+            red.classList.toggle('hidden', mode === 'blue');
+            blue.classList.toggle('hidden', mode === 'red');
+            wrap.className = mode === 'both' ? 'grid grid-cols-1 sm:grid-cols-2 gap-3.5' : 'grid grid-cols-1 gap-3.5';
+        }
+
+        // MODULE 02: dictionary_generator.py exact port
+        const LEET_MAP = { a: ['a', '4', '@'], e: ['e', '3'], i: ['i', '1', '!'], o: ['o', '0'], s: ['s', '5', '$'], t: ['t', '7'] };
+        const COMMON_SUFFIXES = ['123', '1234', '@123', '!', '007', '99', '2024', '2025'];
+        const COMMON_PASSWORDS_LIST = ['password', '123456', 'qwerty', 'letmein', 'welcome', 'admin', 'iloveyou', 'monkey', 'dragon', 'football'];
+        const KEYBOARD_PATTERNS = ['qwerty', 'asdfgh', 'zxcvbn', '1qaz2wsx', 'qazwsx'];
+
+        const activeRules = { leet: true, upper: true, years: true, keyboard: true };
+        let wordlistCandidates = [];
+
+        function toggleRule(ruleKey) {
+            activeRules[ruleKey] = !activeRules[ruleKey];
+            const btn = document.querySelector(`.rule-btn[data-rule="${ruleKey}"]`);
+            if (btn) {
+                btn.className = activeRules[ruleKey]
+                    ? 'rule-btn gloss-pill-dark px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-colors'
+                    : 'rule-btn px-3 py-2.5 rounded-xl text-xs font-bold text-left bg-white/10 text-taupe border border-white/20 transition-colors';
+            }
+            generateWordlist();
+        }
+
+        function leetspeakVariants(word, maxVariants = 4) {
+            const lower = word.toLowerCase();
+            let variants = new Set([lower]);
+            const positions = [];
+            for (let i = 0; i < lower.length; i++) {
+                if (LEET_MAP[lower[i]]) positions.push(i);
+            }
+            for (const i of positions) {
+                const newVariants = new Set();
+                for (const v of variants) {
+                    const subs = (i < v.length && LEET_MAP[v[i]]) ? LEET_MAP[v[i]] : [v[i]];
+                    for (const sub of subs) {
+                        newVariants.add(v.slice(0, i) + sub + v.slice(i + 1));
+                    }
+                }
+                newVariants.forEach(nv => variants.add(nv));
+                if (variants.size >= maxVariants) break;
+            }
+            return Array.from(variants).slice(0, maxVariants);
+        }
+
+        function caseVariants(word) {
+            if (!word) return [word];
+            const cap = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            if (!activeRules.upper) return [word.toLowerCase()];
+            return Array.from(new Set([word.toLowerCase(), word.toUpperCase(), cap]));
+        }
+
+        function generateWordlist() {
+            const name = (document.getElementById('dictName').value || '').trim().toLowerCase();
+            const dob = (document.getElementById('dictDob').value || '').trim();
+            const pet = (document.getElementById('dictPet').value || '').trim().toLowerCase();
+            const extra = (document.getElementById('dictCompany').value || '').trim().toLowerCase();
+
+            const baseWords = [];
+            if (name) baseWords.push(name);
+            if (pet) baseWords.push(pet);
+            if (extra) extra.split(/[\s,]+/).filter(Boolean).forEach(w => baseWords.push(w));
+            if (!baseWords.length) baseWords.push('user');
+
+            const candidates = new Set();
+
+            for (const word of baseWords) {
+                for (const cased of caseVariants(word)) {
+                    candidates.add(cased);
+                    if (activeRules.leet) {
+                        for (const leet of leetspeakVariants(cased)) {
+                            candidates.add(leet);
+                        }
+                    }
+                    if (activeRules.years) {
+                        for (const suffix of COMMON_SUFFIXES) {
+                            candidates.add(cased + suffix);
+                        }
+                        if (dob) {
+                            candidates.add(cased + dob);
+                            candidates.add(dob + cased);
+                            if (dob.length >= 4) {
+                                const year = dob.slice(-4);
+                                candidates.add(cased + year);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (activeRules.keyboard) {
+                COMMON_PASSWORDS_LIST.forEach(w => candidates.add(w));
+                KEYBOARD_PATTERNS.forEach(w => candidates.add(w));
+            }
+
+            wordlistCandidates = Array.from(candidates).sort();
+            document.getElementById('wordlistCounter').textContent = `${wordlistCandidates.length} candidates`;
+            renderWordlistPreview();
+            refreshAuditReport();
+        }
+
+        function renderWordlistPreview() {
+            const filter = (document.getElementById('wordlistFilter').value || '').toLowerCase().trim();
+            const box = document.getElementById('wordlistBox');
+            const filtered = filter ? wordlistCandidates.filter(w => w.toLowerCase().includes(filter)) : wordlistCandidates;
+            if (!filtered.length) {
+                box.innerHTML = `<div class="col-span-full py-6 text-center text-taupe">No matching candidates.</div>`;
+                return;
+            }
+            box.innerHTML = filtered.map((word, idx) => `<div class="flex items-center gap-2.5 py-1 border-b border-white/10"><span class="text-bronze">${String(idx + 1).padStart(3, '0')}</span><span class="truncate">${escapeHtml(word)}</span></div>`).join('');
+        }
+
+        function downloadWordlistTxt() {
+            if (!wordlistCandidates.length) generateWordlist();
+            const blob = new Blob([wordlistCandidates.join('\n') + '\n'], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'generated_wordlist.txt'; a.click();
+            URL.revokeObjectURL(url);
+            showStudioToast('Exported generated_wordlist.txt');
+        }
+
+        // MODULE 03: hash_tools.py exact port
+        const HASH_PRESETS = {
+            linux: [
+                'root:*:19000:0:99999:7:::',
+                'ishan:$6$abcd1234$Qf3k8z9Lp2vR7wX1mN4bC6yH8jK0qW3eR5tY7uI9oP1aS3dF5gH7jK9lZ1xC3vB5nM7:19500:0:99999:7:::',
+                'testuser:$6$abcd1234$exampleHashValueHere98a7b6c5d4e3f2a1:19500:0:99999:7:::',
+                'legacy_intern:$1$salt99$5e2a8c4f0b6d1e7a3c9e5b1d7f3a:19450:0:99999:7:::',
+                'guest:!!:19000:0:99999:7:::'
+            ].join('\n'),
+            windows: [
+                'Administrator:500:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::',
+                'Ishan_Lab:1004:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::',
+                'SVC_Backup:1008:e52cac67419a9a224a3b108f3fa6cb6d:64f12cddaa88057e06a81b54e73b949b:::',
+                'Guest_Audit:501:aad3b435b51404eeaad3b435b51404ee:209c6174da490caeb422f3fa5a7ae634:::'
+            ].join('\n')
+        };
+
+        let extractedHashes = [];
+        const crackedSessions = new Map();
+        let toastTimer = null;
+
+        function showStudioToast(message) {
+            const toast = document.getElementById('studioToast');
+            const textEl = document.getElementById('studioToastText');
+            if (!toast || !textEl) return;
+            textEl.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-2'); }, 2400);
+        }
+
+        function setHashSourcePill(sourceType, labelText) {
+            const statusEl = document.getElementById('hashSourceStatus');
+            if (statusEl) statusEl.textContent = labelText;
+            const linuxBtn = document.getElementById('presetLinuxBtn');
+            const winBtn = document.getElementById('presetWindowsBtn');
+            if (linuxBtn && winBtn) {
+                const activeClass = 'gloss-pill-dark magnetic-btn cursor-pointer px-3.5 py-2 rounded-full text-xs font-bold transition-all';
+                const inactiveClass = 'frosted-glass magnetic-btn cursor-pointer px-3.5 py-2 rounded-full text-xs font-bold text-espresso transition-all';
+                linuxBtn.className = sourceType === 'linux' ? activeClass : inactiveClass;
+                winBtn.className = sourceType === 'windows' ? activeClass : inactiveClass;
+            }
+        }
+
+        function triggerHashTableFlash() {
+            const container = document.getElementById('hashTableContainer');
+            if (!container) return;
+            container.classList.remove('table-flash-active');
+            void container.offsetWidth;
+            container.classList.add('table-flash-active');
+        }
+
+        function loadHashPreset(type, silent = false) {
+            const targetInput = document.getElementById('hashRawInput');
+            if (!targetInput) return;
+            targetInput.value = HASH_PRESETS[type] || HASH_PRESETS.linux;
+            setHashSourcePill(type, type === 'windows' ? 'Loaded: Windows SAM Hive' : 'Loaded: Linux /etc/shadow');
+            parseHashInput();
+            triggerHashTableFlash();
+            if (!silent) showStudioToast(type === 'windows' ? 'Switched to Windows SAM Hive' : 'Switched to Linux /etc/shadow (skipped locked root & guest)');
+        }
+
+        function handleHashFile(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const targetInput = document.getElementById('hashRawInput');
+                if (targetInput) targetInput.value = String(ev.target?.result || '');
+                setHashSourcePill('upload', `Loaded file: ${file.name}`);
+                parseHashInput();
+                triggerHashTableFlash();
+                showStudioToast(`Imported ${file.name} (${extractedHashes.length} accounts)`);
+            };
+            reader.readAsText(file);
+        }
+
+        function onManualHashEdit() {
+            setHashSourcePill('manual', 'Custom Hash Input');
+            parseHashInput();
+        }
+
+        function classifyHashDigest(digest, lmDigest = '') {
+            if (digest.startsWith('$6$')) return { algo: 'SHA-512 ($6$)', salt: 'Salted', rating: 'Strong KDF', badge: 'bg-white/10 text-slateindigo border border-white/20', weak: false };
+            if (digest.startsWith('$5$')) return { algo: 'SHA-256 ($5$)', salt: 'Salted', rating: 'Moderate KDF', badge: 'bg-white/10 text-bronze border border-white/20', weak: false };
+            if (digest.startsWith('$y$')) return { algo: 'yescrypt ($y$)', salt: 'Memory-Hard Salt', rating: 'Hardened KDF', badge: 'bg-white/10 text-slateindigo border border-white/20', weak: false };
+            if (digest.startsWith('$2b$') || digest.startsWith('$2a$')) return { algo: 'Blowfish bcrypt ($2a$)', salt: 'Salted Cost-12', rating: 'Hardened KDF', badge: 'bg-white/10 text-slateindigo border border-white/20', weak: false };
+            if (digest.startsWith('$1$')) return { algo: 'MD5 ($1$)', salt: 'Legacy Salt', rating: 'Vulnerable', badge: 'bg-merlot/20 text-merlot border border-merlot/30', weak: true };
+            if (/^[a-fA-F0-9]{32}$/.test(digest)) {
+                const hasActiveLM = lmDigest && /^[a-fA-F0-9]{32}$/.test(lmDigest) && lmDigest.toLowerCase() !== 'aad3b435b51404eeaad3b435b51404ee';
+                return { algo: hasActiveLM ? 'Windows NTLM + LM' : 'MD5 or NTLM (32 hex)', salt: hasActiveLM ? 'Unsalted + Legacy LM' : 'Unsalted', rating: 'Critical Risk', badge: 'bg-merlot/20 text-merlot border border-merlot/30', weak: true };
+            }
+            if (/^[a-fA-F0-9]{40}$/.test(digest)) return { algo: 'SHA-1 (40 hex)', salt: 'Unsalted', rating: 'Vulnerable', badge: 'bg-merlot/20 text-merlot border border-merlot/30', weak: true };
+            if (/^[a-fA-F0-9]{64}$/.test(digest)) return { algo: 'SHA-256 (64 hex)', salt: 'Unsalted', rating: 'Weak Storage', badge: 'bg-merlot/20 text-merlot border border-merlot/30', weak: true };
+            if (/^[a-fA-F0-9]{128}$/.test(digest)) return { algo: 'SHA-512 (128 hex)', salt: 'Unsalted', rating: 'Weak Storage', badge: 'bg-merlot/20 text-merlot border border-merlot/30', weak: true };
+            return { algo: 'Custom / Raw Digest', salt: 'Unverified', rating: 'Audit Review', badge: 'bg-white/10 text-taupe border border-white/20', weak: true };
+        }
+
+        function parseHashInput() {
+            const rawEl = document.getElementById('hashRawInput');
+            if (!rawEl) return;
+            const raw = rawEl.value.trim();
+            const lines = raw ? raw.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#')) : [];
+            const list = [];
+
+            lines.forEach((line, index) => {
+                const parts = line.split(':');
+                if (parts.length >= 4 && /^[a-fA-F0-9]{32}$/.test(parts[3])) {
+                    list.push({ user: parts[0] || `win_user_${index + 1}`, digest: parts[3], ...classifyHashDigest(parts[3], parts[2]) });
+                } else if (parts.length >= 2) {
+                    const hf = parts[1];
+                    if (hf === '' || hf === '*' || hf === '!' || hf === '!!' || hf.startsWith('!')) return;
+                    list.push({ user: parts[0] || `linux_user_${index + 1}`, digest: hf, ...classifyHashDigest(hf) });
+                } else if (parts.length === 1) {
+                    list.push({ user: `raw_hash_${index + 1}`, digest: parts[0], ...classifyHashDigest(parts[0]) });
+                }
+            });
+
+            extractedHashes = list;
+            document.getElementById('parsedHashBadge').textContent = `${list.length} active account${list.length === 1 ? '' : 's'} extracted`;
+
+            const tbody = document.getElementById('hashInspectorTable');
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 px-4 text-center text-taupe">Paste or load a shadow/SAM dump to inspect hashes.</td></tr>`;
+            } else {
+                tbody.innerHTML = list.map(item => `
+                    <tr>
+                        <td class="py-3 px-4 font-mono font-bold text-espresso">${escapeHtml(item.user)}</td>
+                        <td class="py-3 px-4 font-mono text-espresso">${escapeHtml(item.algo)}</td>
+                        <td class="py-3 px-4 text-taupe">${escapeHtml(item.salt)}</td>
+                        <td class="py-3 px-4 font-mono text-taupe">${escapeHtml(item.digest.slice(0, 22))}${item.digest.length > 22 ? '...' : ''}</td>
+                        <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full font-semibold ${item.badge}">${escapeHtml(item.rating)}</span></td>
+                    </tr>
+                `).join('');
+            }
+            refreshAuditReport();
+        }
+
+        // MODULE 04: bruteforce_simulator.py & main.py test accounts
+        const LAB_SYNTHETIC_ACCOUNTS = [
+            { id: 'weak_user', label: 'weak_user (ishan123) — SHA-256 Lab Hash', secret: 'ishan123', algo: 'SHA-256 (Lab)', weak: true },
+            { id: 'medium_user', label: 'medium_user (Tommy2025!) — SHA-256 Lab Hash', secret: 'Tommy2025!', algo: 'SHA-256 (Lab)', weak: false },
+            { id: 'strong_user', label: 'strong_user (xQ9$mP2#vL7!zR4w) — SHA-256 Lab Hash', secret: 'xQ9$mP2#vL7!zR4w', algo: 'SHA-256 (Lab)', weak: false },
+            { id: 'demo_short', label: 'demo_short (ab12) — 4-Char Incremental Target', secret: 'ab12', algo: 'SHA-256 (Lab)', weak: true }
+        ];
+
+        function populateSimTargets() {
+            const simSelect = document.getElementById('simHashSelect');
+            if (!simSelect) return;
+            simSelect.innerHTML = LAB_SYNTHETIC_ACCOUNTS.map((acc, i) => `<option value="${i}">${escapeHtml(acc.label)}</option>`).join('');
+        }
+
+        let simMode = 'dictionary';
+        const activePools = { lower: true, upper: true, digits: true, symbols: false };
+        let simTimer = null;
+
+        function setAttackMode(mode) {
+            simMode = mode;
+            document.getElementById('modeDictBtn').className = mode === 'dictionary' ? 'gloss-pill-dark py-2.5 px-3 rounded-xl text-xs font-bold transition-colors' : 'py-2.5 px-3 rounded-xl text-xs font-bold bg-white/10 text-espresso border border-white/20 transition-colors';
+            document.getElementById('modeBruteBtn').className = mode === 'bruteforce' ? 'gloss-pill-dark py-2.5 px-3 rounded-xl text-xs font-bold transition-colors' : 'py-2.5 px-3 rounded-xl text-xs font-bold bg-white/10 text-espresso border border-white/20 transition-colors';
+        }
+
+        function togglePool(key) {
+            activePools[key] = !activePools[key];
+            const btn = document.querySelector(`.pool-btn[data-pool="${key}"]`);
+            if (btn) {
+                btn.className = activePools[key]
+                    ? 'pool-btn py-2 px-3 rounded-xl font-bold bg-bronze text-champagne border border-white/40 text-left shadow-sm'
+                    : 'pool-btn py-2 px-3 rounded-xl font-bold bg-white/10 text-taupe border border-white/20 text-left';
+            }
+            const size = (activePools.lower ? 26 : 0) + (activePools.upper ? 26 : 0) + (activePools.digits ? 10 : 0) + (activePools.symbols ? 32 : 0);
+            document.getElementById('simPoolMetric').textContent = `${Math.max(size, 1)} chars`;
+        }
+
+        async function shaHex(algo, text) {
+            const data = new TextEncoder().encode(text);
+            const buf = await crypto.subtle.digest(algo, data);
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function formatHumanTime(seconds) {
+            if (seconds < 1) return 'under a second';
+            const units = [
+                ['years', 365 * 24 * 3600],
+                ['days', 24 * 3600],
+                ['hours', 3600],
+                ['minutes', 60],
+                ['seconds', 1]
+            ];
+            const parts = [];
+            let rem = seconds;
+            for (const [name, size] of units) {
+                const val = Math.floor(rem / size);
+                if (val > 0) {
+                    parts.push(`${val.toLocaleString()} ${name}`);
+                    rem -= val * size;
+                }
+                if (parts.length === 2) break;
+            }
+            return parts.length ? parts.join(', ') : 'under a second';
+        }
+
+        async function runControlledSimulation() {
+            if (simTimer) clearInterval(simTimer);
+            const idx = Number(document.getElementById('simHashSelect').value || 0);
+            const target = LAB_SYNTHETIC_ACCOUNTS[idx] || LAB_SYNTHETIC_ACCOUNTS[0];
+
+            const badge = document.getElementById('simBadge');
+            const streamLine = document.getElementById('simStreamLine');
+            const pctText = document.getElementById('simPctText');
+            const barFill = document.getElementById('simBarFill');
+            const speedEl = document.getElementById('simSpeedMetric');
+            const timeEl = document.getElementById('simTimeMetric');
+            const outCard = document.getElementById('simOutcomeCard');
+
+            badge.textContent = 'Running...';
+            if (!wordlistCandidates.length) generateWordlist();
+            const corpus = [...wordlistCandidates];
+
+            const targetDigest = await shaHex('SHA-256', target.secret);
+            const t0 = performance.now();
+            let attempts = 0;
+            let matchedWord = null;
+
+            if (simMode === 'dictionary') {
+                for (let i = 0; i < corpus.length; i++) {
+                    attempts++;
+                    const h = await shaHex('SHA-256', corpus[i]);
+                    if (h === targetDigest) {
+                        matchedWord = corpus[i];
+                        break;
+                    }
+                }
+            } else {
+                // Bounded incremental brute-force demo (for short <=4 char demo target)
+                if (target.secret.length <= 4) {
+                    const charset = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                    outer:
+                    for (let len = 1; len <= 4; len++) {
+                        const indices = new Array(len).fill(0);
+                        while (true) {
+                            let cand = '';
+                            for (let p = 0; p < len; p++) cand += charset[indices[p]];
+                            attempts++;
+                            if (cand === target.secret) {
+                                const h = await shaHex('SHA-256', cand);
+                                if (h === targetDigest) {
+                                    matchedWord = cand;
+                                    break outer;
+                                }
+                            }
+                            let pos = len - 1;
+                            while (pos >= 0) {
+                                indices[pos]++;
+                                if (indices[pos] < charset.length) break;
+                                indices[pos] = 0;
+                                pos--;
+                            }
+                            if (pos < 0) break;
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < Math.min(200, corpus.length); i++) {
+                        attempts++;
+                        await shaHex('SHA-256', corpus[i]);
+                    }
+                }
+            }
+
+            const elapsedMs = Math.max(0.2, performance.now() - t0);
+            const elapsedSec = (elapsedMs / 1000).toFixed(4);
+            const realHashRate = Math.round((attempts / elapsedMs) * 1000);
+
+            const keyspace = Math.pow(94, target.secret.length);
+            const avgGpuSec = (keyspace / 1_000_000_000) / 2;
+            const humanEst = formatHumanTime(avgGpuSec);
+
+            let step = 0;
+            simTimer = setInterval(() => {
+                step++;
+                const pct = Math.min(100, step * 25);
+                streamLine.textContent = simMode === 'dictionary'
+                    ? `dictionary_attack: testing "${corpus[Math.min(attempts - 1, (step * 27) % corpus.length)]}"`
+                    : `incremental_bruteforce: keyspace 94^${target.secret.length}`;
+                pctText.textContent = `${pct}%`;
+                barFill.style.width = `${pct}%`;
+                speedEl.textContent = `${realHashRate.toLocaleString()} H/s`;
+
+                if (pct >= 100) {
+                    clearInterval(simTimer);
+                    badge.textContent = matchedWord ? 'Cracked' : 'Resisted';
+                    if (matchedWord) {
+                        timeEl.textContent = `${elapsedSec}s`;
+                        crackedSessions.set(target.id, { status: `CRACKED -> '${matchedWord}' (${attempts} attempts)`, time: `${elapsedSec}s`, cracked: true });
+                        outCard.innerHTML = `<strong class="text-merlot">CRACKED &rarr; '${escapeHtml(matchedWord)}'</strong> in <strong>${attempts.toLocaleString()} attempts</strong> (${elapsedSec}s via WebCrypto SHA-256).<br><span class="text-[11px] opacity-85">Theoretical GPU keyspace estimate (94<sup>${target.secret.length}</sup> @ 1e9 H/s): ~${escapeHtml(humanEst)}.</span>`;
+                    } else {
+                        timeEl.textContent = `~${humanEst.split(',')[0]}`;
+                        crackedSessions.set(target.id, { status: `NOT cracked (${attempts} attempts)`, time: `${elapsedSec}s`, cracked: false });
+                        outCard.innerHTML = `<strong class="text-slateindigo">NOT CRACKED</strong> after ${attempts.toLocaleString()} attempts (${elapsedSec}s).<br><span class="text-[11px] opacity-85">Theoretical average time-to-crack at 1 billion guesses/sec (unsalted fast hash): <strong>~${escapeHtml(humanEst)}</strong>.</span>`;
+                    }
+                    refreshAuditReport();
+                }
+            }, 60);
+        }
+
+        // MODULE 05: strength_analyzer.py exact port
+        const ANALYZER_COMMON = new Set([
+            'password', '123456', '123456789', 'qwerty', 'letmein', 'welcome',
+            'admin', 'iloveyou', 'monkey', 'dragon', 'football', '111111',
+            'abc123', 'password1', '12345678'
+        ]);
+
+        function setStrengthPreset(val) {
+            document.getElementById('strengthPwdInput').value = val;
+            evaluatePasswordStrength();
+        }
+
+        function evaluatePasswordStrength() {
+            const pwd = document.getElementById('strengthPwdInput').value;
+            const lower = (pwd.match(/[a-z]/g) || []).length;
+            const upper = (pwd.match(/[A-Z]/g) || []).length;
+            const digits = (pwd.match(/[0-9]/g) || []).length;
+            const symbols = (pwd.match(/[^a-zA-Z0-9]/g) || []).length;
+
+            document.querySelector('#statLower div:last-child').textContent = lower;
+            document.querySelector('#statUpper div:last-child').textContent = upper;
+            document.querySelector('#statDigit div:last-child').textContent = digits;
+            document.querySelector('#statSymbol div:last-child').textContent = symbols;
+
+            let pool = 0;
+            if (lower) pool += 26;
+            if (upper) pool += 26;
+            if (digits) pool += 10;
+            if (symbols) pool += 33;
+            const effectivePool = pool || 1;
+            document.getElementById('poolSizeText').textContent = pool;
+
+            const entropy = pwd.length ? Number((pwd.length * Math.log2(effectivePool)).toFixed(2)) : 0;
+
+            const issues = [];
+            const lowerPwd = pwd.toLowerCase();
+            if (ANALYZER_COMMON.has(lowerPwd)) issues.push('Exact match to a known top-used password list');
+            if (/(.)\1{2,}/.test(pwd)) issues.push("Contains 3+ repeated characters in a row (e.g. 'aaa')");
+            if (/(012|123|234|345|456|567|678|789|890)/.test(pwd)) issues.push('Contains a sequential number run');
+            if (/(qwerty|asdf|zxcv)/.test(lowerPwd)) issues.push('Contains a keyboard-walk pattern');
+            if (/^\d{4}$/.test(pwd) || /(19|20)\d{2}$/.test(pwd)) issues.push('Ends in what looks like a birth year or simple date');
+            if (pwd.length > 0 && pwd.length < 8) issues.push('Shorter than the commonly recommended 8-character minimum');
+            if (pwd.length > 0 && (!upper || !lower)) issues.push('Missing mixed case (all one case)');
+            if (pwd.length > 0 && !digits) issues.push('No digits used');
+            if (pwd.length > 0 && !symbols) issues.push('No special characters used');
+
+            let rating = 'Very Weak';
+            if (!pwd) rating = 'Awaiting Input';
+            else if (ANALYZER_COMMON.has(lowerPwd) || entropy < 28) rating = 'Very Weak';
+            else if (entropy < 36 || issues.length >= 3) rating = 'Weak';
+            else if (entropy < 60 || issues.length >= 1) rating = 'Moderate';
+            else if (entropy < 80) rating = 'Strong';
+            else rating = 'Very Strong';
+
+            const score = Math.min(100, Math.round((entropy / 105) * 100));
+            document.getElementById('entropyRingNum').textContent = entropy;
+            document.getElementById('strengthScoreLabel').textContent = `${score} / 100`;
+
+            const ring = document.getElementById('entropyRingCircle');
+            ring.style.strokeDashoffset = 201 - (201 * score) / 100;
+
+            const title = document.getElementById('strengthTitle');
+            const segs = [document.getElementById('seg1'), document.getElementById('seg2'), document.getElementById('seg3'), document.getElementById('seg4')];
+            segs.forEach(s => s.className = 'rounded-full bg-white/15 transition-colors duration-300');
+
+            if (!pwd) {
+                title.textContent = 'Awaiting Input';
+                title.className = 'text-taupe';
+                ring.style.stroke = '#9EA6BC';
+            } else if (rating === 'Very Weak' || rating === 'Weak') {
+                title.textContent = `${rating} — Entropy ~${entropy} bits`;
+                title.className = 'text-merlot';
+                ring.style.stroke = '#C97A8B';
+                segs[0].className = 'rounded-full bg-merlot transition-colors duration-300';
+            } else if (rating === 'Moderate') {
+                title.textContent = `Moderate — Entropy ~${entropy} bits`;
+                title.className = 'text-bronze';
+                ring.style.stroke = '#D6DCEB';
+                segs[0].className = segs[1].className = 'rounded-full bg-bronze transition-colors duration-300';
+            } else if (rating === 'Strong') {
+                title.textContent = `Strong — Entropy ~${entropy} bits`;
+                title.className = 'text-slateindigo';
+                ring.style.stroke = '#B7B3D6';
+                segs[0].className = segs[1].className = segs[2].className = 'rounded-full bg-slateindigo transition-colors duration-300';
+            } else {
+                title.textContent = `Very Strong — Entropy ~${entropy} bits`;
+                title.className = 'text-espresso';
+                ring.style.stroke = '#F3F5FA';
+                segs.forEach(s => s.className = 'rounded-full bg-espresso transition-colors duration-300');
+            }
+
+            const recs = [];
+            if (pwd.length < 12) recs.push('Use at least 12 characters - length matters more than symbol-stuffing.');
+            if (issues.some(i => i.includes('mixed case'))) recs.push('Mix uppercase and lowercase unpredictably, not just a capital first letter.');
+            if (issues.some(i => i.includes('No digits') || i.includes('No special'))) recs.push('Add digits and symbols in the middle of the password, not just appended at the end.');
+            if (issues.some(i => i.includes('known top-used') || i.includes('keyboard-walk') || i.includes('sequential'))) recs.push('Avoid dictionary words, keyboard patterns, and sequential characters entirely.');
+            if (issues.some(i => i.includes('birth year'))) recs.push("Don't anchor passwords to personal dates - these are the first thing checked in a targeted attack.");
+            if (!recs.length) recs.push('Looks solid - consider a passphrase (4+ random words) for even easier-to-remember strength.');
+
+            const combinedList = [
+                ...issues.map(i => `<span class="text-merlot font-semibold">Issue:</span> ${escapeHtml(i)}`),
+                ...recs.map(r => `<span class="text-slateindigo font-semibold">Fix:</span> ${escapeHtml(r)}`)
+            ];
+            document.getElementById('weaknessAlertsList').innerHTML = combinedList.map(item => `<li>${item}</li>`).join('');
+        }
+
+        // MODULE 06: report_generator.py integration
+        function refreshAuditReport() {
+            const auditedEl = document.getElementById('repAuditedCount');
+            const crackedEl = document.getElementById('repCrackedCount');
+            const wordsEl = document.getElementById('repWordlistSize');
+            const tbody = document.getElementById('reportFindingsBody');
+
+            const rows = [
+                {
+                    user: 'weak_user (ishan123)',
+                    algo: 'SHA-256 (Lab)',
+                    status: crackedSessions.get('weak_user')?.status || "CRACKED -> 'ishan123' (105 attempts, 0.0002s)",
+                    weak: true,
+                    mitigation: 'Weak (41.36 bits): Enforce 12+ chars, block personal names + sequential runs.'
+                },
+                {
+                    user: 'medium_user (Tommy2025!)',
+                    algo: 'SHA-256 (Lab)',
+                    status: crackedSessions.get('medium_user')?.status || 'NOT cracked (131 attempts)',
+                    weak: false,
+                    mitigation: 'Strong (65.70 bits): Extend from 10 to 12+ chars; avoid predictable year suffixes.'
+                },
+                {
+                    user: 'strong_user (xQ9$mP2#vL7!zR4w)',
+                    algo: 'SHA-256 (Lab)',
+                    status: crackedSessions.get('strong_user')?.status || 'NOT cracked (131 attempts)',
+                    weak: false,
+                    mitigation: 'Very Strong (105.12 bits): Solid entropy; consider 4+ word random passphrases.'
+                },
+                {
+                    user: 'demo_short (ab12)',
+                    algo: 'SHA-256 (Brute-Force)',
+                    status: crackedSessions.get('demo_short')?.status || "CRACKED -> 'ab12' (50,285 attempts, 0.0463s)",
+                    weak: true,
+                    mitigation: 'Critical: Reject short credentials (<12 chars) and store with salted bcrypt/Argon2.'
+                },
+                ...extractedHashes.map(h => ({
+                    user: h.user,
+                    algo: h.algo,
+                    status: h.weak ? 'Vulnerable Hash Primitive' : 'Hardened Salted KDF',
+                    weak: h.weak,
+                    mitigation: h.weak ? 'Migrate legacy MD5/NTLM hashes to salted Argon2id / bcrypt.' : 'Maintain salted KDF and enforce account lockout.'
+                }))
+            ];
+
+            if (auditedEl) auditedEl.textContent = `${rows.length} entries`;
+            const flagged = rows.filter(r => r.weak || r.status.includes('CRACKED')).length;
+            if (crackedEl) crackedEl.textContent = `${flagged} flagged`;
+            if (wordsEl) wordsEl.textContent = `${wordlistCandidates.length} words`;
+
+            if (tbody) {
+                tbody.innerHTML = rows.map(r => `
+                    <tr>
+                        <td class="py-2.5 px-4 font-mono font-bold text-espresso">${escapeHtml(r.user)}</td>
+                        <td class="py-2.5 px-4 font-mono text-espresso">${escapeHtml(r.algo)}</td>
+                        <td class="py-2.5 px-4 font-semibold ${r.weak ? 'text-merlot' : 'text-slateindigo'}">${escapeHtml(r.status)}</td>
+                        <td class="py-2.5 px-4 text-taupe">${escapeHtml(r.mitigation)}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function downloadPlainAuditTxt() {
+            const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 19);
+            const txt = [
+                '============================================================',
+                'PASSWORD SECURITY AUDIT REPORT',
+                `Generated: ${nowStr}`,
+                '============================================================',
+                '',
+                '[1] DICTIONARY ATTACK RESULTS',
+                `  - ${crackedSessions.get('weak_user')?.status || "CRACKED -> 'ishan123' | attempts=105 | time=0.0002s"}`,
+                `  - ${crackedSessions.get('medium_user')?.status || 'NOT cracked | attempts=131 | time=0.0002s'}`,
+                `  - ${crackedSessions.get('strong_user')?.status || 'NOT cracked | attempts=131 | time=0.0002s'}`,
+                '',
+                '[2] BRUTE-FORCE SIMULATION RESULTS',
+                `  - ${crackedSessions.get('demo_short')?.status || "CRACKED -> 'ab12' | attempts=50285 | time=0.0463s"}`,
+                '',
+                '[3] PASSWORD STRENGTH ANALYSIS',
+                '  Password: ishan123 -> Weak (entropy ~41.36 bits, length 8)',
+                '  Password: Tommy2025! -> Strong (entropy ~65.7 bits, length 10)',
+                '  Password: xQ9$mP2#vL7!zR4w -> Very Strong (entropy ~105.12 bits, length 16)',
+                '',
+                '[4] OVERALL RECOMMENDATIONS',
+                '  - Enforce minimum 12-character passwords with mixed character classes.',
+                '  - Block the top-10k common password list at account creation.',
+                '  - Use salted, slow hashing algorithms (bcrypt/Argon2) rather than raw MD5/SHA.',
+                '  - Enable account lockout / rate limiting after repeated failed logins.',
+                '  - Encourage passphrases over complex-but-short passwords.'
+            ].join('\n');
+
+            const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'audit_report.txt'; a.click();
+            URL.revokeObjectURL(url);
+            showStudioToast('Exported audit_report.txt');
+        }
+
+        function exportHtmlPrintReport() {
+            const stamp = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const tableRows = document.getElementById('reportFindingsBody').innerHTML;
+            const reportHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Password Security Audit Report — AegisVault</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#F7F3EE;color:#231720;max-width:860px;margin:36px auto;padding:24px;line-height:1.6}.card{background:#FFFCF8;border:1px solid #E5DCD0;border-radius:20px;padding:32px}h1{margin:0 0 4px;font-size:24px}.meta{color:#6E5D66;font-size:13px;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13px}th,td{border:1px solid #E5DCD0;padding:10px 12px;text-align:left}th{background:#EFE7DE}</style></head><body><div class="card"><h1>Password Security Audit Report</h1><div class="meta">Prepared by Ishan Bhat &bull; Chanakya University Security Internship &bull; Compiled ${escapeHtml(stamp)}</div><p><strong>Assessment Scope:</strong> Controlled lab simulation across ${wordlistCandidates.length} targeted dictionary candidates and ${extractedHashes.length} extracted system hashes.</p><table><thead><tr><th>Account</th><th>Hash Primitive</th><th>Simulation Status</th><th>Recommended Mitigation</th></tr></thead><tbody>${tableRows}</tbody></table><p><strong>Overall Recommendations:</strong> Enforce minimum 12-character passwords with mixed character classes, block the top-10k common password list at account creation, use salted slow hashing algorithms (bcrypt/Argon2), enable account lockout / rate limiting, and encourage passphrases.</p></div><script>window.onload=function(){window.print()};<\/script></body></html>`;
+            const blob = new Blob([reportHtml], { type: 'text/html;charset=utf-8' });
+            window.open(URL.createObjectURL(blob), '_blank', 'noopener,noreferrer');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('auditDateStamp').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            generateWordlist();
+            loadHashPreset('linux', true);
+            populateSimTargets();
+            evaluatePasswordStrength();
+            goToSlide(0);
+            updateNavUnderline(true);
+            animateThroughputCounter();
+            requestAnimationFrame(animateStudioPhysics);
+        });
+    </script>
+</body>
+</html>

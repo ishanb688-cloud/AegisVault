@@ -1,0 +1,43 @@
+============================================================
+PASSWORD SECURITY AUDIT REPORT
+Generated: 2026-11-25 12:15:00
+============================================================
+
+[1] DICTIONARY ATTACK RESULTS
+  - CRACKED -> 'ishan123' | attempts=106 | time=0.0001s
+  - NOT cracked | attempts=132 | time=0.0001s
+  - NOT cracked | attempts=132 | time=0.0002s
+
+[2] BRUTE-FORCE SIMULATION RESULTS
+  - CRACKED -> 'ab12' | attempts=50285 | time=0.0551s
+
+[3] PASSWORD STRENGTH ANALYSIS
+
+  Password: ishan123
+    Rating: Weak  (entropy ~41.36 bits, length 8)
+    Issues:
+      - Contains a sequential number run
+      - Missing mixed case (all one case)
+      - No special characters used
+    Recommendations:
+      - Use at least 12 characters - length matters more than symbol-stuffing.
+      - Mix uppercase and lowercase unpredictably, not just a capital first letter.
+      - Add digits and symbols in the middle of the password, not just appended at the end.
+      - Avoid dictionary words, keyboard patterns, and sequential characters entirely.
+
+  Password: Tommy2025!
+    Rating: Strong  (entropy ~65.7 bits, length 10)
+    Recommendations:
+      - Use at least 12 characters - length matters more than symbol-stuffing.
+
+  Password: xQ9$mP2#vL7!zR4w
+    Rating: Very Strong  (entropy ~105.12 bits, length 16)
+    Recommendations:
+      - Looks solid - consider a passphrase (4+ random words) for even easier-to-remember strength.
+
+[4] OVERALL RECOMMENDATIONS
+  - Enforce minimum 12-character passwords with mixed character classes.
+  - Block the top-10k common password list at account creation.
+  - Use salted, slow hashing algorithms (bcrypt/Argon2) rather than raw MD5/SHA.
+  - Enable account lockout / rate limiting after repeated failed logins.
+  - Encourage passphrases over complex-but-short passwords.
